@@ -15,6 +15,7 @@ class HistoryScreen extends StatefulWidget {
   HistoryScreenState createState() => HistoryScreenState();
 }
 
+// coba update
 class HistoryScreenState extends State<HistoryScreen> {
   final List<HistoryItem> historyItems = List.generate(
     10,
