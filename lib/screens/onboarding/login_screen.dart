@@ -50,7 +50,7 @@ class LoginScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              Image.asset('assets/images/mondae_3.png', height: 100), // Ganti dengan gambar logo anda
+              Image.asset('assets/images/mondae_3.png', height: 190), // Ganti dengan gambar logo anda
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -182,6 +182,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
+
 
 
 
