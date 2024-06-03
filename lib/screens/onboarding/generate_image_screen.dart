@@ -16,9 +16,8 @@ class GenerateImageScreen extends StatefulWidget {
 
 class _GenerateImageScreenState extends State<GenerateImageScreen> {
   final TextEditingController textController = TextEditingController();
-  String? generatedImageUrl;
-  String? imageDescription;
-  String? prompt;
+  final List<Map<String, dynamic>> messages = [];
+  final Map<String, Map<String, String>> generatedImages = {};
   File? selectedImage;
 
   final ImagePicker _picker = ImagePicker();
@@ -29,29 +28,54 @@ class _GenerateImageScreenState extends State<GenerateImageScreen> {
     setState(() {
       if (pickedFile != null) {
         selectedImage = File(pickedFile.path);
+        messages.add({"text": "Image selected", "sender": "system"});
       } else {
         print('No image selected.');
       }
     });
   }
 
-  Future<void> generateImage() async {
-    setState(() {
-      prompt = textController.text;
-    });
-
+  Future<void> generateImage(String prompt, {bool isRegenerate = false, int? index}) async {
     final response = await http.get(Uri.parse(
         'https://api.unsplash.com/photos/random?query=$prompt&client_id=ggV4vFCIo_vQFO1INJOgVWNQB1CXellKmUEYWyT9Is8'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
-        generatedImageUrl = data['urls']['regular'];
-        imageDescription = data['alt_description'];
+        generatedImages[prompt] = {
+          "url": data['urls']['regular'],
+          "description": data['alt_description']
+        };
+        if (isRegenerate && index != null) {
+          messages[index] = {"text": "Generated image for prompt: $prompt", "sender": "system", "prompt": prompt};
+        } else {
+          messages.add({"text": "Generated image for prompt: $prompt", "sender": "system", "prompt": prompt});
+        }
       });
     } else {
       print('Failed to load image');
     }
+  }
+
+  void _showFullScreenImage(String imageUrl) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FullScreenImage(imageUrl: imageUrl),
+      ),
+    );
+  }
+
+  void _sendMessage(String text) {
+    setState(() {
+      messages.add({"text": text, "sender": "user", "prompt": text});
+    });
+    textController.clear();
+    generateImage(text); // Generate image based on user input
+  }
+
+  void _regenerateImage(String prompt, int index) {
+    generateImage(prompt, isRegenerate: true, index: index); // Regenerate image based on the specific prompt
   }
 
   @override
@@ -64,141 +88,208 @@ class _GenerateImageScreenState extends State<GenerateImageScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (generatedImageUrl != null) ...[
-                    Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+            child: ListView.builder(
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                return message["sender"] == "user"
+                    ? _buildUserMessage(message["text"]!)
+                    : _buildSystemMessage(message["text"]!, message["prompt"]!, index);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                ElevatedButton(
+                  onPressed: pickImage,
+                  child: const Icon(Icons.attach_file),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      hintText: 'Type your message...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Generated Image:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          CachedNetworkImage(
-                            imageUrl: generatedImageUrl!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                const Center(child: CircularProgressIndicator()),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          ),
-                          if (prompt != null) ...[
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Prompt: $prompt',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ],
-                          if (imageDescription != null) ...[
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Description: $imageDescription',
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ],
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: ElevatedButton(
-                                  onPressed: generateImage,
-                                  child: const Text('Regenerate Image'),
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () async {
-                                  await FlutterDownloader.enqueue(
-                                    url: generatedImageUrl!,
-                                    savedDir: 'Downloads',
-                                    fileName: 'image.jpg',
-                                    showNotification: true,
-                                    openFileFromNotification: true,
-                                  );
-                                },
-                                icon: const Icon(Icons.download),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
-                    const SizedBox(height: 16),
-                  ],
-                  const Text(
-                    'Enter your text to generate an image:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    onSubmitted: _sendMessage,
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: textController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Input Text',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton.icon(
-                        onPressed: generateImage,
-                        icon: const Icon(Icons.send),
-                        label: const Text('Submit'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: pickImage,
-                        child: const Text('Pick Image'),
-                      ),
-                      const SizedBox(width: 16),
-                      if (selectedImage != null)
-                        Image.file(
-                          selectedImage!,
-                          width: 50,
-                          height: 50,
-                        ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    if (textController.text.isNotEmpty) {
+                      _sendMessage(textController.text);
+                    }
+                  },
+                  child: const Icon(Icons.send),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildUserMessage(String text) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSystemMessage(String text, String prompt, int index) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  backgroundColor: Colors.grey,
+                  child: Icon(Icons.android, color: Colors.white),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        text,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      generatedImages.containsKey(prompt)
+                          ? GestureDetector(
+                              onTap: () => _showFullScreenImage(generatedImages[prompt]!["url"]!),
+                              child: Card(
+                                elevation: 3,
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Container(
+                                      width: 400,
+                                      height: 200,
+                                      child: CachedNetworkImage(
+                                        imageUrl: generatedImages[prompt]!["url"]!,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => const Center(
+                                            child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error),
+                                      ),
+                                    ),
+                                    if (generatedImages[prompt]!["description"] != null)
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          generatedImages[prompt]!["description"]!,
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () async {
+                                            await FlutterDownloader.enqueue(
+                                              url: generatedImages[prompt]!["url"]!,
+                                              savedDir: 'Downloads',
+                                              fileName: 'image.jpg',
+                                              showNotification: true,
+                                              openFileFromNotification: true,
+                                            );
+                                          },
+                                          icon: const Icon(Icons.download),
+                                        ),
+                                        IconButton(
+                                          onPressed: () =>
+                                              _regenerateImage(prompt, index),
+                                          icon: const Icon(Icons.refresh),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFullScreenImage(String imageUrl) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+        ),
+      ),
+    );
+  }
 }
 
+class FullScreenImage extends StatelessWidget {
+  final String imageUrl;
 
+  const FullScreenImage({Key? key, required this.imageUrl}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+        ),
+      ),
+    );
+  }
+}
 
 
 
