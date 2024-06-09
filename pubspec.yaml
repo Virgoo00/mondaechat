@@ -8,19 +8,22 @@ environment:
   sdk: '>=3.3.4 <4.0.0'
 
 dependencies:
+  flutter_spinkit: ^5.2.1
   carousel_slider: ^4.2.1
   flutter:
     sdk: flutter
-  http: ^0.13.3
+  cupertino_icons: ^1.0.6
+  dio: ^5.4.3+1
+  image_picker: ^1.1.1
+  http: ^1.2.1
   flutter_dotenv: ^5.0.2
-  image_picker: ^0.8.9
   file_picker: ^4.6.1
   flutter_svg: ^1.1.6
   charts_flutter: ^0.11.0
   fl_chart: ^0.36.0
-  cupertino_icons: ^1.0.6
   cached_network_image: ^3.1.0
   flutter_downloader: ^1.6.1
+  google_generative_ai: ^0.4.2
     
 
 dev_dependencies:
@@ -40,56 +43,10 @@ flutter:
 
   assets:
     - assets/images/Group 11.png
+    - assets/images/mondae_2.jpeg
     - assets/images/mondae_3.png
-    - assets/onboarding2.jpg
-    - assets/onboarding3.jpg
-    - assets/onboarding4.jpg
     - assets/images/
     - assets/
     - assets/onboarding2.svg
     - assets/onboarding3.svg
     - assets/onboarding4.svg
-
-
-
-
-
-# KODE LAMA
-# name: mondaechat
-# description: "A new Flutter project."
-# publish_to: 'none'
-
-# version: 1.0.0+1
-
-# environment:
-#   sdk: '>=3.3.4 <4.0.0'
-
-# dependencies:
-#   flutter:
-#     sdk: flutter
-#   http: ^0.13.3
-#   flutter_dotenv: ^5.0.2
-#   image_picker: ^0.8.9
-#   file_picker: ^4.6.1
-#   flutter_svg: ^1.1.6
-#   charts_flutter: ^0.11.0
-#   fl_chart: ^0.36.0
-#   cupertino_icons: ^1.0.6
-
-# dev_dependencies:
-#   flutter_test:
-#     sdk: flutter
-#   flutter_lints: ^3.0.0
-
-# flutter:
-#   fonts:
-#     - family: Poppins
-#       fonts:
-#         - asset: assets/fonts/Poppins-Regular.ttf
-#         - asset: assets/fonts/Poppins-Bold.ttf
-#           weight: 700
-
-#   uses-material-design: true
-
-#   assets:
-#     - assets/images/Group 11.png
