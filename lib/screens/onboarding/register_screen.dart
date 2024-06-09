@@ -11,7 +11,7 @@ class RegisterScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue[100]!, Colors.blue[50]!],
+            colors: [Color.fromARGB(255, 199, 230, 255), Colors.blue[50]!],
           ),
         ),
         child: SingleChildScrollView(
@@ -19,7 +19,7 @@ class RegisterScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              Image.asset('assets/images/mondae_3.png', height: 100), // Ganti dengan gambar logo Anda
+              Image.asset('assets/images/mondae_3.png', height: 75), // Ganti dengan gambar logo Anda
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -28,7 +28,7 @@ class RegisterScreen extends StatelessWidget {
                     const Text(
                       'Create an Account',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Colors.black,
                       ),
@@ -36,7 +36,7 @@ class RegisterScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Padding lebih kecil
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
@@ -50,19 +50,19 @@ class RegisterScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 5),
                           TextFormField(
                             decoration: const InputDecoration(
                               hintText: 'Email',
                               border: InputBorder.none,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 5),
                           Divider(
                             color: Colors.grey[300],
                             thickness: 1,
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 5),
                           TextFormField(
                             obscureText: true,
                             decoration: const InputDecoration(
@@ -70,12 +70,12 @@ class RegisterScreen extends StatelessWidget {
                               border: InputBorder.none,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 5),
                           Divider(
                             color: Colors.grey[300],
                             thickness: 1,
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 5),
                           TextFormField(
                             obscureText: true,
                             decoration: const InputDecoration(
@@ -83,7 +83,7 @@ class RegisterScreen extends StatelessWidget {
                               border: InputBorder.none,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -151,84 +151,3 @@ void main() {
     home: RegisterScreen(),
   ));
 }
-
-
-
-
-
-// KODE LAMA
-// import 'package:flutter/material.dart';
-
-// class RegisterScreen extends StatelessWidget {
-//   const RegisterScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Register"),
-//       ),
-//       body: Center(
-//         child: SingleChildScrollView(
-//           padding: const EdgeInsets.all(16.0),
-//           child: Card(
-//             elevation: 4,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(10),
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsets.all(16.0),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.stretch,
-//                 children: [
-//                   const Text(
-//                     'Create an Account',
-//                     textAlign: TextAlign.center,
-//                     style: TextStyle(
-//                       fontSize: 24,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   const SizedBox(height: 16),
-//                   TextFormField(
-//                     decoration: const InputDecoration(
-//                       labelText: "Email",
-//                       border: OutlineInputBorder(),
-//                     ),
-//                   ),
-//                   const SizedBox(height: 16),
-//                   TextFormField(
-//                     decoration: const InputDecoration(
-//                       labelText: "Password",
-//                       border: OutlineInputBorder(),
-//                     ),
-//                     obscureText: true,
-//                   ),
-//                   const SizedBox(height: 16),
-//                   TextFormField(
-//                     decoration: const InputDecoration(
-//                       labelText: "Confirm Password",
-//                       border: OutlineInputBorder(),
-//                     ),
-//                     obscureText: true,
-//                   ),
-//                   const SizedBox(height: 32),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       // Implement registration logic here
-//                     },
-//                     style: ElevatedButton.styleFrom(
-//                       padding: const EdgeInsets.symmetric(vertical: 16),
-//                       textStyle: const TextStyle(fontSize: 16),
-//                     ),
-//                     child: const Text("Register"),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
