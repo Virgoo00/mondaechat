@@ -1,63 +1,17 @@
 import 'package:flutter/material.dart';
-import 'chat_screen.dart';
-
-class HistoryItem {
-  String title;
-  final DateTime dateTime;
-
-  HistoryItem({required this.title, required this.dateTime});
-}
+import 'archive_screen.dart'; // Mengimpor file archive_screen.dart
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
-
   @override
-  HistoryScreenState createState() => HistoryScreenState();
+  _HistoryScreenState createState() => _HistoryScreenState();
 }
 
-// coba update
-class HistoryScreenState extends State<HistoryScreen> {
-  final List<HistoryItem> historyItems = List.generate(
-    10,
-        (index) => HistoryItem(
-      title: 'Generated Item ${index + 1}',
-      dateTime: DateTime.now().subtract(Duration(days: index)),
-    ),
-  );
-
-  void _editTitle(int index) {
-    TextEditingController controller = TextEditingController(text: historyItems[index].title);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Title'),
-          content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(labelText: 'Title'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  historyItems[index].title = controller.text;
-                });
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+class _HistoryScreenState extends State<HistoryScreen> {
+  List<ArchiveItem> historyItems = [
+    ArchiveItem(title: 'History Generate 1', date: '28/05/2024'),
+    ArchiveItem(title: 'History Generate 2', date: '28/05/2024'),
+    ArchiveItem(title: 'History Generate 3', date: '28/05/2024'),
+  ];
 
   void _deleteItem(int index) {
     setState(() {
@@ -65,70 +19,129 @@ class HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
+  void _editItem(int index, String newTitle) {
+    setState(() {
+      historyItems[index] = ArchiveItem(title: newTitle, date: historyItems[index].date);
+    });
+  }
+
+  void _showEditDialog(int index) {
+    TextEditingController _controller = TextEditingController(text: historyItems[index].title);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit History Name'),
+          content: TextField(
+            controller: _controller,
+            decoration: InputDecoration(
+              labelText: 'New History Name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text('Save'),
+              onPressed: () {
+                _editItem(index, _controller.text);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('History'),
+        backgroundColor: Color.fromARGB(255, 199, 230, 255),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Implementasi untuk menambahkan item
+            },
+            icon: Icon(Icons.add),
+          ),
+        ],
       ),
-      body: ListView.builder(
-        itemCount: historyItems.length,
-        itemBuilder: (context, index) {
-          final item = historyItems[index];
-          return Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: historyItems.length,
+              itemBuilder: (context, index) {
+                final item = historyItems[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${item.dateTime.toLocal()}'.split(' ')[0],
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ChatScreen()),
-                          );
-                        },
-                        child: const Text('Open'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          _editTitle(index);
-                        },
-                        child: const Text('Edit'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          _deleteItem(index);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Background color
+                  child: ListTile(
+                    title: Text(item.title),
+                    subtitle: Text(item.date),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            _showEditDialog(index);
+                          },
                         ),
-                        child: const Text('Delete'),
-                      ),
-                    ],
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            _deleteItem(index);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
+                );
+              },
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArchiveListScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFC7E6FF),
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.archive_outlined, color: Color(0xFF717CA1)),
+                  SizedBox(width: 8.0),
+                  Text('Archive List'),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
