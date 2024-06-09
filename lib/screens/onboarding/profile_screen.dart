@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'history_screen.dart';
 import 'generate_image.dart';
-import 'profile_settings_screen.dart';
-import 'archive_screen.dart'; // Import layar archive
 import 'generate_teks.dart';
 import 'login_screen.dart'; // Import halaman login
 import 'dart:io';
+import 'profile_settings_screen.dart';
+import 'generate_chart.dart'; // Import halaman generate_chart
 
 void main() {
   runApp(ProfileScreen());
@@ -25,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Color.fromARGB(255, 199, 230, 255), // Warna appbar
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.menu, color: Colors.black),
@@ -37,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.blue[100]!, Colors.blue[50]!],
+              colors: [Color.fromARGB(255, 199, 230, 255), Colors.blue[50]!],
             ),
           ),
           child: SingleChildScrollView(
@@ -95,22 +96,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // Navigasi ke halaman archive
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ArchiveScreen()),
+                        MaterialPageRoute(builder: (context) => HistoryScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[100],
+                      backgroundColor: Colors.purple, // Ubah warna latar belakang menjadi ungu
                       padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white), // Ubah warna teks menjadi putih
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.bookmark, color: Colors.white),
+                        Icon(Icons.archive, color: Colors.white),
                         SizedBox(width: 10),
-                        Text('Archive History'),
+                        Text('Archive History', style: TextStyle(fontSize: 12, color: Colors.white)),
                         SizedBox(width: 10),
-                        Text('100 in total', style: TextStyle(fontSize: 14, color: Colors.white)),
+                        Text('100 in total', style: TextStyle(fontSize: 12, color: Colors.white)),
                       ],
                     ),
                   ),
@@ -160,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.text_fields, color: Colors.purple, size: 30),
+                            Icon(Icons.image, color: Colors.purple, size: 30),
                             SizedBox(height: 10),
                             Text('Image Generation', style: TextStyle(color: Colors.black, fontSize: 12), textAlign: TextAlign.center),
                           ],
@@ -227,7 +228,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // Navigasi ke halaman generate_chart
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => GenerateChartScreen()),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           padding: EdgeInsets.all(15),
@@ -266,11 +273,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text('Konfirmasi'),
-                            content: Text('Apakah Anda yakin ingin keluar?'),
+                            title: Text('Are you sure want to logout?'),
+                            content: Text('You must login first before access app again!'),
                             actions: [
                               TextButton(
-                                child: Text('Batal'),
+                                child: Text('Cancel'),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -285,7 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     (Route<dynamic> route) => false,
                                   );
                                 },
-                                child: Text('Keluar'),
+                                child: Text('Logout'),
                               ),
                             ],
                           );
@@ -296,13 +303,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.white,
                       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                       textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      side: BorderSide(color: Colors.red),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.logout, color: Colors.blue[900]),
+                        Icon(Icons.logout, color: Colors.red),
                         SizedBox(width: 10),
-                        Text('Log out'),
+                        Text('Logout', style: TextStyle(color: Colors.red)),
                       ],
                     ),
                   ),
@@ -316,230 +324,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-
-
-
-
-// KODE LAMA
-// import 'package:flutter/material.dart';
-// import 'package:mondaechat/screens/onboarding/profile_settings_screen.dart';
-// import 'chat_screen.dart';
-// import 'history_screen.dart';
-// import 'login_screen.dart';
-// import 'archive_screen.dart';
-// import 'generate_image_screen.dart';
-// import 'generate_chart_screen.dart';
-
-// class ProfileScreen extends StatelessWidget {
-//   const ProfileScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     const String username = "John Doe";
-//     const String profileImageUrl = "assets/profile.jpg";
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Profile'),
-//         centerTitle: true,
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             // User Info Section
-//             Card(
-//               elevation: 4,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(16.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.center,
-//                   children: [
-//                     const CircleAvatar(
-//                       radius: 50,
-//                       backgroundImage: AssetImage(profileImageUrl),
-//                     ),
-//                     const SizedBox(height: 10),
-//                     const Text(
-//                       username,
-//                       style: TextStyle(
-//                         fontSize: 24,
-//                         fontWeight: FontWeight.bold,
-//                         color: Colors.black87,
-//                       ),
-//                     ),
-//                     const SizedBox(height: 10),
-//                     ElevatedButton.icon(
-//                       onPressed: () {
-//                         Navigator.push(
-//                           context,
-//                           MaterialPageRoute(
-//                             builder: (context) => const ProfileSettingsScreen(),
-//                           ),
-//                         );
-//                       },
-//                       icon: const Icon(Icons.settings),
-//                       label: const Text('Setelan Profil'),
-//                       style: ElevatedButton.styleFrom(
-//                         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-//                         textStyle: const TextStyle(fontSize: 16),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: 20),
-//             // Archive Section
-//             const Text(
-//               'Archive',
-//               style: TextStyle(
-//                 fontSize: 24,
-//                 fontWeight: FontWeight.bold,
-//                 color: Colors.black87,
-//               ),
-//             ),
-//             const SizedBox(height: 10),
-//             Card(
-//               elevation: 4,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: Padding(
-//                 padding: const EdgeInsets.all(16.0),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.stretch,
-//                   children: [
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                           context,
-//                           MaterialPageRoute(
-//                             builder: (context) => const HistoryScreen(),
-//                           ),
-//                         );
-//                       },
-//                       style: ElevatedButton.styleFrom(
-//                         padding: const EdgeInsets.symmetric(vertical: 12),
-//                         textStyle: const TextStyle(fontSize: 16),
-//                       ),
-//                       child: const Text('History'),
-//                     ),
-//                     const SizedBox(height: 10),
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                           context,
-//                           MaterialPageRoute(
-//                             builder: (context) => ArchiveScreen(),
-//                           ),
-//                         );
-//                       },
-//                       style: ElevatedButton.styleFrom(
-//                         padding: const EdgeInsets.symmetric(vertical: 12),
-//                         textStyle: const TextStyle(fontSize: 16),
-//                       ),
-//                       child: const Text('Archive'),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: 30),
-//             // Features Section
-//             const Text(
-//               'Features',
-//               style: TextStyle(
-//                 fontSize: 24,
-//                 fontWeight: FontWeight.bold,
-//                 color: Colors.black87,
-//               ),
-//             ),
-//             const SizedBox(height: 10),
-//             // Generate Image Feature
-//             Card(
-//               elevation: 4,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: ListTile(
-//                 leading: const Icon(Icons.image, color: Colors.blueAccent, size: 40),
-//                 title: const Text('Generate Image', style: TextStyle(fontSize: 18)),
-//                 onTap: () {
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => const GenerateImageScreen(),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//             const SizedBox(height: 10),
-//             // Generate Text Feature
-//             Card(
-//               elevation: 4,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: ListTile(
-//                 leading: const Icon(Icons.text_fields, color: Colors.green, size: 40),
-//                 title: const Text('Generate Text', style: TextStyle(fontSize: 18)),
-//                 onTap: () {
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => const ChatScreen(),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//             const SizedBox(height: 10),
-//             // Generate Chart Feature
-//             Card(
-//               elevation: 4,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(10),
-//               ),
-//               child: ListTile(
-//                 leading: const Icon(Icons.bar_chart, color: Colors.orange, size: 40),
-//                 title: const Text('Generate Chart', style: TextStyle(fontSize: 18)),
-//                 onTap: () {
-//                   Navigator.push(
-//                     context,
-//                     MaterialPageRoute(
-//                       builder: (context) => const GenerateChartScreen(),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//             const SizedBox(height: 30),
-//             // Logout Button
-//             Center(
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   Navigator.pushReplacement(
-//                     context,
-//                     MaterialPageRoute(builder: (context) => const LoginScreen()),
-//                   );
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.redAccent,
-//                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-//                   textStyle: const TextStyle(fontSize: 16),
-//                 ),
-//                 child: const Text('Logout'),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
