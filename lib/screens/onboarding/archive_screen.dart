@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'generate_teks.dart';
-import 'edit_archive.dart'; // Impor layar pengeditan
 
 class ArchiveItem {
   final String title;
-  final DateTime dateTime;
+  final String date; // Gunakan String untuk menyimpan tanggal
 
-  ArchiveItem({required this.title, required this.dateTime});
+  ArchiveItem({required this.title, required this.date});
 }
 
 class ArchiveScreen extends StatefulWidget {
@@ -15,13 +13,11 @@ class ArchiveScreen extends StatefulWidget {
 }
 
 class _ArchiveScreenState extends State<ArchiveScreen> {
-  List<ArchiveItem> archiveItems = List.generate(
-    10,
-    (index) => ArchiveItem(
-      title: 'Generated Item ${index + 1}',
-      dateTime: DateTime.now().subtract(Duration(days: index)),
-    ),
-  );
+  List<ArchiveItem> archiveItems = [
+    ArchiveItem(title: 'History Generate 1', date: '28/05/2024'),
+    ArchiveItem(title: 'History Generate 2', date: '28/05/2024'),
+    ArchiveItem(title: 'History Generate 3', date: '28/05/2024'),
+  ];
 
   void _deleteItem(int index) {
     setState(() {
@@ -29,17 +25,43 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     });
   }
 
-  void _editItem(int index, ArchiveItem newItem) {
+  void _editItem(int index, String newTitle) {
     setState(() {
-      archiveItems[index] = newItem;
+      archiveItems[index] = ArchiveItem(title: newTitle, date: archiveItems[index].date);
     });
   }
 
-  void _shareItem(ArchiveItem item) {
-    // Implement share functionality here
-    // For demonstration, just showing a snackbar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Sharing ${item.title}')),
+  void _showEditDialog(int index) {
+    TextEditingController _controller = TextEditingController(text: archiveItems[index].title);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit History Name'),
+          content: TextField(
+            controller: _controller,
+            decoration: InputDecoration(
+              labelText: 'New History Name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text('Save'),
+              onPressed: () {
+                _editItem(index, _controller.text);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -47,192 +69,201 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Archive'),
+        title: const Text('History'),
+        backgroundColor: Color.fromARGB(255, 199, 230, 255),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // Implementasi untuk menambahkan item
+            },
+            icon: Icon(Icons.add),
+          ),
+        ],
       ),
-      body: ListView.builder(
-        itemCount: archiveItems.length,
-        itemBuilder: (context, index) {
-          final item = archiveItems[index];
-          return Card(
-            margin: const EdgeInsets.all(8.0),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: archiveItems.length,
+              itemBuilder: (context, index) {
+                final item = archiveItems[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: ListTile(
+                    title: Text(item.title),
+                    subtitle: Text(item.date),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            _showEditDialog(index);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            _deleteItem(index);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ArchiveListScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFC7E6FF),
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    item.title,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "${item.dateTime.toLocal()}".split(' ')[0],
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ChatScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        ),
-                        child: const Text('Open'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditScreen(
-                                item: item,
-                                onEdit: (newItem) => _editItem(index, newItem),
-                              ),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        ),
-                        child: const Text('Edit'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () => _deleteItem(index),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Background color
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        ),
-                        child: const Text('Delete'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () => _shareItem(item),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Background color
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        ),
-                        child: const Text('Share'),
-                      ),
-                    ],
-                  ),
+                  Icon(Icons.archive_outlined, color: Color(0xFF717CA1)),
+                  SizedBox(width: 8.0),
+                  Text('Archive List'),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 }
 
+class ArchiveListScreen extends StatefulWidget {
+  @override
+  _ArchiveListScreenState createState() => _ArchiveListScreenState();
+}
 
+class _ArchiveListScreenState extends State<ArchiveListScreen> {
+  List<ArchiveItem> archiveListItems = [
+    ArchiveItem(title: 'Archived Item 1', date: '28/05/2024'),
+    ArchiveItem(title: 'Archived Item 2', date: '28/05/2024'),
+    ArchiveItem(title: 'Archived Item 3', date: '28/05/2024'),
+  ];
 
+  void _deleteItem(int index) {
+    setState(() {
+      archiveListItems.removeAt(index);
+    });
+  }
 
+  void _editItem(int index, String newTitle) {
+    setState(() {
+      archiveListItems[index] = ArchiveItem(title: newTitle, date: archiveListItems[index].date);
+    });
+  }
 
+  void _showEditDialog(int index) {
+    TextEditingController _controller = TextEditingController(text: archiveListItems[index].title);
 
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Archive Name'),
+          content: TextField(
+            controller: _controller,
+            decoration: InputDecoration(
+              labelText: 'New Archive Name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text('Save'),
+              onPressed: () {
+                _editItem(index, _controller.text);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-// KODE LAMA
-// import 'package:flutter/material.dart';
-
-// import 'chat_screen.dart';
-
-// class ArchiveItem {
-//   final String title;
-//   final DateTime dateTime;
-
-//   ArchiveItem({required this.title, required this.dateTime});
-// }
-
-// class ArchiveScreen extends StatelessWidget {
-//   ArchiveScreen({super.key});
-
-//   final List<ArchiveItem> archiveItems = List.generate(
-//     10,
-//         (index) => ArchiveItem(
-//       title: 'Generated Item ${index + 1}',
-//       dateTime: DateTime.now().subtract(Duration(days: index)),
-//     ),
-//   );
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Archive'),
-//       ),
-//       body: ListView.builder(
-//         itemCount: archiveItems.length,
-//         itemBuilder: (context, index) {
-//           final item = archiveItems[index];
-//           return Card(
-//             margin: const EdgeInsets.all(8.0),
-//             child: Padding(
-//               padding: const EdgeInsets.all(16.0),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     item.title,
-//                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//                   ),
-//                   const SizedBox(height: 8),
-//                   Text(
-//                     """${'${item.dateTime.toLocal()}'.split(' ')[0]} at ${'${item.dateTime.toLocal()}'.split(' ')[1].substring(0, 5)}""",
-//                     style: const TextStyle(color: Colors.grey),
-//                   ),
-//                   const SizedBox(height: 2),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.end,
-//                     children: [
-//                       ElevatedButton(
-//                         onPressed: () {
-//                           Navigator.push(
-//                             context,
-//                             MaterialPageRoute(builder: (context) => const ChatScreen()),
-//                           );
-//                         },
-//                         child: const Text('Open'),
-//                       ),
-//                       const SizedBox(width: 2),
-//                       ElevatedButton(
-//                         onPressed: () {
-//                         },
-//                         child: const Text('Edit'),
-//                       ),
-//                       const SizedBox(width: 0),
-//                       ElevatedButton(
-//                         onPressed: () {
-//                         },
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.red, // Background color
-//                         ),
-//                         child: const Text('Delete'),
-//                       ),
-//                       const SizedBox(width: 0),
-//                       ElevatedButton(
-//                         onPressed: () {
-//                           // Implement share functionality
-//                         },
-//                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.blue, // Background color
-//                         ),
-//                         child: const Text('Share'),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Archive List'),
+        backgroundColor: Color.fromARGB(255, 199, 230, 255),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: archiveListItems.length,
+              itemBuilder: (context, index) {
+                final item = archiveListItems[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: ListTile(
+                    title: Text(item.title),
+                    subtitle: Text(item.date),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            _showEditDialog(index);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            _deleteItem(index);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
